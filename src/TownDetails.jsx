@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { dijkstra } from './dijkstra';
-
-const TownDetails = ({ selectedTown, graph, towns }) => {
+import { getPathTo } from './utils';
+import chatbox from './assets/l2_chatbox.png';
+import Navbar from './navbar';
+const TownDetails = ({ selectedTown, graph, towns}) => {
   const [distancesFromSelectedTown, setDistancesFromSelectedTown] = useState([]);
   const [pathTo, setPathTo] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,6 +28,7 @@ const TownDetails = ({ selectedTown, graph, towns }) => {
 
       const { distances, path } = dijkstra(graph, selectedTownIndex);
       return { distances, path };
+      
     } catch (error) {
       console.error("Error in useEffect:", error);
       setError(`An error occurred: ${error.message || "Unknown error"}`);
@@ -44,25 +47,14 @@ const TownDetails = ({ selectedTown, graph, towns }) => {
     }
 
     setIsLoading(false);
-  }, [calculateDistancesAndPath]);
-
-  const getPathTo = (end) => {
-    const pathToArr = [];
-    let current = end;
-
-    while (current !== null) { // Check for undefined to handle cycles
-      const townName = towns[current];
-      if (townName !== selectedTown) {
-        pathToArr.unshift(townName);
-      }
-      current = pathTo[current];
-    }
-
-    return pathToArr.join(" -> "); // No need to iterate through towns again
-  };
+  }, [calculateDistancesAndPath,selectedTown]);
 
   return (
-    <div>
+    <div className="content-container">
+    <img src={chatbox} className="logo react" alt="Chatbox logo" />
+    <div className="table-container">
+      <Navbar towns={towns} />
+      <div className="text">
       <h2>Town of {selectedTown}</h2>
       {isLoading && <p>Loading...</p>}
       {error && <p>Error: {error}</p>}
@@ -82,7 +74,7 @@ const TownDetails = ({ selectedTown, graph, towns }) => {
                   <tr key={index}>
                     <td>{towns[index]}</td>
                     <td>{formattedNumber(distance)}</td>
-                    <td>{getPathTo(index)}</td>
+                    <td>{getPathTo(towns, pathTo, selectedTown, index)}</td>
                   </tr>
                 );
               }
@@ -91,7 +83,9 @@ const TownDetails = ({ selectedTown, graph, towns }) => {
           </tbody>
         </table>
       )}
-    </div>
+          </div>
+        </div>
+      </div>
   );
 };
 

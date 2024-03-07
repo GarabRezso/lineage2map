@@ -1,13 +1,18 @@
-import React, { useEffect, useRef } from 'react';
-import map from './assets/map.jpg';
+import React, { useEffect, useRef, useState } from 'react';
+import { getPathTo } from './utils';
+import { dijkstra } from './dijkstra';
 // Inside MapImage.jsx
-const MapImage = ({ towns }) => {
+const MapImage = ({ towns, graph, selectedTown }) => {
   const canvasRef = useRef(null);
-
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
 
+    // Clear the canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    const selectedTownIndex = towns.indexOf(selectedTown);
+    const { distances, path } = dijkstra(graph, selectedTownIndex);
     // Dummy data for testing
     const cities = [
       { name: 'Rune', x: 836, y: 1050 },
@@ -21,42 +26,58 @@ const MapImage = ({ towns }) => {
       { name: 'Oren', x: 1081, y: 1583 },
     ];
 
-    const paths = ['Rune -> Goddard','Rune -> Gludio','Rune -> Giran','Rune -> Dion','Rune -> Heine','Rune -> Schuttgart','Rune -> Aden','Rune -> Oren','Goddard -> Gludio','Goddard -> Giran','Goddard -> Dion','Goddard -> Heine','Goddard -> Schuttgart','Goddard -> Aden','Goddard -> Oren','Gludio -> Giran','Gludio -> Dion','Gludio -> Heine','Gludio -> Schuttgart','Gludio -> Aden','Gludio -> Oren','Giran -> Dion','Giran -> Heine','Giran -> Schuttgart','Giran -> Aden','Giran -> Oren','Dion -> Heine','Dion -> Schuttgart','Dion -> Aden','Dion -> Oren','Heine -> Schuttgart','Heine -> Aden','Heine -> Oren','Schuttgart -> Aden','Schuttgart -> Oren','Aden -> Oren'];
-    
-    // Load JPG image
-    <img src={map}  alt="map" />
+    //const paths = ['Rune -> Goddard','Rune -> Gludio','Rune -> Giran','Rune -> Dion','Rune -> Heine','Rune -> Schuttgart','Rune -> Aden','Rune -> Oren','Goddard -> Gludio','Goddard -> Giran','Goddard -> Dion','Goddard -> Heine','Goddard -> Schuttgart','Goddard -> Aden','Goddard -> Oren','Gludio -> Giran','Gludio -> Dion','Gludio -> Heine','Gludio -> Schuttgart','Gludio -> Aden','Gludio -> Oren','Giran -> Dion','Giran -> Heine','Giran -> Schuttgart','Giran -> Aden','Giran -> Oren','Dion -> Heine','Dion -> Schuttgart','Dion -> Aden','Dion -> Oren','Heine -> Schuttgart','Heine -> Aden','Heine -> Oren','Schuttgart -> Aden','Schuttgart -> Oren','Aden -> Oren'];
+    //const paths = getPathTo(index);
 
     // Drawing cities
     cities.forEach((city) => {
       context.beginPath();
-      context.arc(city.x, city.y, 5, 0, 2 * Math.PI);
+      context.arc(city.x, city.y, 10, 0, 2 * Math.PI);
       context.fillStyle = 'blue';
       context.fill();
       context.closePath();
     });
 
     // Drawing paths
-    paths.forEach((path) => {
-      const pathTowns = path.split(' -> ');
-      context.beginPath();
-      context.moveTo(
-        cities.find((city) => city.name === pathTowns[0]).x,
-        cities.find((city) => city.name === pathTowns[0]).y
-      );
-
-      pathTowns.forEach((town) => {
+    towns.forEach((town, index) => {
+      if (index !== selectedTownIndex) {
+        const finalPath = getPathTo(towns, path, selectedTown, index);
         const townCoords = cities.find((city) => city.name === town);
-        context.lineTo(townCoords.x, townCoords.y);
-      });
+        context.beginPath();
+        context.moveTo(townCoords.x, townCoords.y);
 
-      context.strokeStyle = 'green';
-      context.lineWidth = 3;
-      context.stroke();
-      context.closePath();
+        const pathArray = finalPath.split(' -> ');
+
+        for (let i = 0; i < pathArray.length - 1; i++) {
+          const currentTown = pathArray[i];
+          const nextTown = pathArray[i + 1];
+        
+          const currentTownCoords = cities.find((city) => city.name === currentTown);
+          const nextTownCoords = cities.find((city) => city.name === nextTown);
+
+          context.strokeStyle = getRandomColor(); 
+
+          context.moveTo(currentTownCoords.x, currentTownCoords.y);
+          context.lineTo(nextTownCoords.x, nextTownCoords.y);
+        }
+        context.lineWidth = 3;
+        context.stroke();
+        context.closePath();
+      }
     });
-  }, [towns]);
+  }, [towns, graph, selectedTown]);
 
   return <canvas ref={canvasRef} id="mapCanvas" width={1812} height={2620} />;
 };
 
 export default MapImage;
+
+//színválasztó függvény
+function getRandomColor() {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
