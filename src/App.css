@@ -1,0 +1,72 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 50em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  top: 1%;
+  left: 1%;
+  transform: scale(0.8);
+}
+
+.table-container {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  max-width: 700px;
+  min-width: 500px;
+  transform: translate(-50%, -70%);
+}
+
+.text{
+  position: absolute;
+  top: 200%;
+  left: 55%;
+  transform: translate(-50%, -25%);
+}
+
+.text th:nth-child(3) {
+  min-width: 450px;
+}
+
+#mapCanvas {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-image: url('./assets/map.jpg'); 
+}
